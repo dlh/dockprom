@@ -54,16 +54,32 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+      - ./textfile/data:/textfile:ro
     command:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.textfile.directory=/textfile'
     restart: unless-stopped
     expose:
       - 9100
     networks:
       - monitor-net
+    labels:
+      org.label-schema.group: "monitoring"
+
+  nodeexporter-textfile:
+    build:
+      context: .
+      dockerfile: textfile/Dockerfile
+    volumes:
+      - ./textfile/data:/textfile
+    restart: unless-stopped
+    networks:
+      - monitor-net
+    cap_add:
+      - SYS_RAWIO
     labels:
       org.label-schema.group: "monitoring"
 
